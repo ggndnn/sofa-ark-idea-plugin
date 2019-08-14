@@ -1,0 +1,30 @@
+<idea-plugin>
+    <id>com.github.ggndnn.sofa-ark-idea-plugin</id>
+    <name>Sofa Ark for IDEA</name>
+
+    <version>1.0.0</version>
+
+    <vendor email="ggndnn@163.com" url="https://www.github.com/ggndnn">ggndnn</vendor>
+
+    <depends>org.jetbrains.idea.maven</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="com.github.ggndnn.sofa.ark.execution.SofaArkRunConfigurationType"/>
+        <applicationInitializedListener
+                implementation="com.github.ggndnn.sofa.ark.utils.SofaArkApplicationInitializedListener"/>
+        <localInspection groupPath="Java" language="JAVA" shortName="SofaArkImport"
+                         groupBundle="messages.InspectionsBundle" groupKey="group.names.imports" enabledByDefault="true"
+                         level="ERROR" cleanupTool="true"
+                         implementationClass="com.github.ggndnn.sofa.ark.inspections.SofaArkImportInspection"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+    <project-components>
+        <component>
+            <implementation-class>com.github.ggndnn.sofa.ark.components.SofaArkManager</implementation-class>
+        </component>
+    </project-components>
+</idea-plugin>

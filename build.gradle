@@ -1,0 +1,45 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        jcenter()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.9'
+}
+
+repositories {
+    maven {
+        url "http://maven.aliyun.com/nexus/content/groups/public/"
+    }
+}
+
+group 'com.github.ggndnn'
+version '0.1.0-SNAPSHOT'
+
+intellij {
+    localPath '/Applications/IntelliJ IDEA CE.app'
+
+    plugins 'maven', 'java'
+}
+
+patchPluginXml {
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}
+
+dependencies {
+    implementation('com.alipay.sofa:sofa-ark-common:0.6.0') {
+        exclude group: 'com.alipay.sofa', module: 'sofa-ark-spi'
+        exclude group: 'com.google.inject', module: 'guice'
+        exclude group: 'com.alipay.sofa.common', module: 'log-sofa-boot-starter'
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+    implementation 'com.alipay.sofa:sofa-ark-tools:0.6.0'
+    implementation 'com.alipay.sofa:sofa-ark-container:0.6.0'
+}
