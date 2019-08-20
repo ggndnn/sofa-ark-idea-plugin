@@ -31,6 +31,11 @@ import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 
 import java.util.List;
 
+/**
+ * SofaArkApplicationInitializedListener
+ *
+ * @author ggndnn
+ */
 public class SofaArkApplicationInitializedListener implements ApplicationInitializedListener {
     @Override
     public void componentsInitialized() {

@@ -82,8 +82,9 @@ class SofaArkApplicationCommandLineState extends BaseJavaApplicationCommandLineS
                                 pluginOrBizWriter = pluginOrBizRef;
                             }
                         }
-                        if (pluginOrBizWriter == null)
+                        if (pluginOrBizWriter == null) {
                             return;
+                        }
                         String fileName = m.artifactId;
                         if (PluginOrBizModel.CLASSIFIER_BIZ.equals(m.classifier)) {
                             fileName += ".biz";

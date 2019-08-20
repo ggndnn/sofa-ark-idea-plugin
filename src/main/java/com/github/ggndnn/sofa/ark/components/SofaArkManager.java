@@ -92,8 +92,9 @@ public class SofaArkManager {
         SofaArkId id = moduleToSofaArkId(module);
         if (contextsOfModule != null && id != null) {
             for (SofaArkManagerRefreshContext c : contextsOfModule.values()) {
-                if (c.bizCache.containsKey(id))
+                if (c.bizCache.containsKey(id)) {
                     return true;
+                }
             }
         }
         return false;
@@ -103,8 +104,9 @@ public class SofaArkManager {
         SofaArkId id = moduleToSofaArkId(module);
         if (contextsOfModule != null && id != null) {
             for (SofaArkManagerRefreshContext c : contextsOfModule.values()) {
-                if (c.pluginCache.containsKey(id))
+                if (c.pluginCache.containsKey(id)) {
                     return true;
+                }
             }
         }
         return false;
@@ -112,21 +114,25 @@ public class SofaArkManager {
 
     public SofaArkBiz getBizByModule(Module module) {
         SofaArkId id = moduleToSofaArkId(module);
-        if (id == null || contextsOfModule == null)
+        if (id == null || contextsOfModule == null) {
             return null;
+        }
         SofaArkManagerRefreshContext c = contextsOfModule.get(module);
-        if (c == null)
+        if (c == null) {
             return null;
+        }
         return c.bizCache.get(id);
     }
 
     public SofaArkPlugin getPluginByModule(Module module) {
         SofaArkId id = moduleToSofaArkId(module);
-        if (id == null || contextsOfModule == null)
+        if (id == null || contextsOfModule == null) {
             return null;
+        }
         SofaArkManagerRefreshContext c = contextsOfModule.get(module);
-        if (c == null)
+        if (c == null) {
             return null;
+        }
         return c.pluginCache.get(id);
     }
 
@@ -134,8 +140,9 @@ public class SofaArkManager {
         if (contextsOfModule != null) {
             for (SofaArkManagerRefreshContext c : contextsOfModule.values()) {
                 SofaArkBiz biz = c.bizCache.get(id);
-                if (biz != null)
+                if (biz != null) {
                     return biz;
+                }
             }
         }
         return null;
@@ -145,8 +152,9 @@ public class SofaArkManager {
         if (contextsOfModule != null) {
             for (SofaArkManagerRefreshContext c : contextsOfModule.values()) {
                 SofaArkPlugin plugin = c.pluginCache.get(id);
-                if (plugin != null)
+                if (plugin != null) {
                     return plugin;
+                }
             }
         }
         return null;
@@ -164,8 +172,9 @@ public class SofaArkManager {
         if (contextsOfModule != null) {
             for (SofaArkManagerRefreshContext c : contextsOfModule.values()) {
                 SofaArkPlugin plugin = findExportPlugin(pkg, className, c);
-                if (plugin != null)
+                if (plugin != null) {
                     return plugin;
+                }
             }
         }
         return null;
@@ -210,11 +219,13 @@ public class SofaArkManager {
     }
 
     public void onMavenProjectDelete(MavenProject maven) {
-        if (contextsOfModule == null)
+        if (contextsOfModule == null) {
             return;
+        }
         Module module = MavenProjectsManager.getInstance(project).findModule(maven);
-        if (module == null)
+        if (module == null) {
             return;
+        }
         Map<Module, SofaArkManagerRefreshContext> newContextsOfModule = new HashMap<>(contextsOfModule);
         newContextsOfModule.remove(module);
         contextsOfModule = newContextsOfModule;
@@ -275,10 +286,14 @@ public class SofaArkManager {
 
     private void refreshModule(Module module, SofaArkManagerRefreshContext context) {
         MavenProject maven = MavenProjectsManager.getInstance(project).findProject(module);
-        if (maven == null)
+        if (maven == null) {
             return;
-        if (maven.hasReadingProblems() || maven.hasUnresolvedArtifacts() || maven.hasUnresolvedPlugins())
+        }
+        if (maven.hasReadingProblems()
+                || maven.hasUnresolvedArtifacts()
+                || maven.hasUnresolvedPlugins()) {
             return;
+        }
         List<SofaArkBase<?>> pluginOrBizList = new ArrayList<>();
         SofaArkBase<?> base = createModelFromModule(module, context);
         if (base == null) {
@@ -289,8 +304,9 @@ public class SofaArkManager {
         for (SofaArkId id : candidates.keySet()) {
             LibraryOrderEntry libraryEntry = candidates.get(id);
             SofaArkBase<?> pluginOrBiz = createModelFromLibraryEntry(module, id, libraryEntry, context);
-            if (pluginOrBiz == null)
+            if (pluginOrBiz == null) {
                 continue;
+            }
             pluginOrBizList.add(pluginOrBiz);
         }
         for (SofaArkBase<?> pluginOrBiz : pluginOrBizList) {
@@ -319,11 +335,13 @@ public class SofaArkManager {
                 continue;
             }
             Library library = libraryEntry.getLibrary();
-            if (library == null)
+            if (library == null) {
                 throw new IllegalStateException();
+            }
             VirtualFile[] files = library.getFiles(OrderRootType.CLASSES);
-            if (files.length <= 0)
+            if (files.length <= 0) {
                 throw new IllegalStateException();
+            }
             VirtualFile classpathFile = files[0];
             result.add(new VirtualFileClasspathEntry(libraryId, classpathFile));
         }
@@ -427,11 +445,13 @@ public class SofaArkManager {
                 .filter(Objects::nonNull)
                 .map(id -> {
                     File f = MavenArtifactUtil.getArtifactFile(localRepo, id.getGroupId(), id.getArtifactId(), id.getVersion(), "jar");
-                    if (!f.exists())
+                    if (!f.exists()) {
                         return null;
+                    }
                     VirtualFile vf = VfsUtil.findFileByIoFile(f, false);
-                    if (vf == null)
+                    if (vf == null) {
                         return null;
+                    }
                     vf = JarFileSystem.getInstance().getRootByLocal(vf);
                     return new VirtualFileClasspathEntry(id, vf);
                 })
@@ -442,8 +462,9 @@ public class SofaArkManager {
     private Set<SofaArkId> findLibrariesForPluginOrBiz(SofaArkBase<?> pluginOrBiz, MavenProject maven, SofaArkManagerRefreshContext context) {
         SofaArkId id = pluginOrBiz.getMetadata().getId();
         Set<SofaArkId> classpath = context.pluginOrBizAndLibraries.get(id);
-        if (classpath != null)
+        if (classpath != null) {
             return classpath;
+        }
         ArtifactNode root = new MavenProjectNode(maven);
         ArtifactNode node = findArtifactNode(id, root, context);
         if (node == null) {
@@ -459,10 +480,12 @@ public class SofaArkManager {
         stack.push(root);
         while (!stack.empty()) {
             ArtifactNode node = stack.pop();
-            if (!node.isValid())
+            if (!node.isValid()) {
                 continue;
-            if (node.isDuplicate())
+            }
+            if (node.isDuplicate()) {
                 continue;
+            }
             if (id.equals(node.getId())) {
                 return node;
             }
@@ -482,13 +505,15 @@ public class SofaArkManager {
         stack.push(artifactNode);
         while (!stack.isEmpty()) {
             ArtifactNode node = stack.pop();
-            if (node == null)
+            if (node == null) {
                 continue;
+            }
             Set<ArtifactNode> children = node.getDependencies();
             if (children != null && children.size() > 0) {
                 for (ArtifactNode child : children) {
-                    if (!child.isInProductionScope())
+                    if (!child.isInProductionScope()) {
                         continue;
+                    }
                     if (child.isDuplicate()) {
                         ArtifactNode relatedChild = findArtifactNode(child.getId(), root, context);
                         if (relatedChild == null || relatedChild == child) {
@@ -496,25 +521,30 @@ public class SofaArkManager {
                         }
                         child = relatedChild;
                     }
-                    if (!child.isValid())
+                    if (!child.isValid()) {
                         continue;
+                    }
                     SofaArkId childNodeId = child.getId();
-                    if (childNodeId == null)
+                    if (childNodeId == null) {
                         throw new IllegalStateException();
+                    }
                     MavenProject mavenProject = context.getMavenProjectByNode(child);
-                    if (mavenProject != null)
+                    if (mavenProject != null) {
                         continue;
+                    }
                     // TODO JarFileSystem
                     VirtualFile vf = child.getFile();
                     if (vf == null) {
                         throw new IllegalStateException("Can not find file of " + child.getId().toString());
                     }
                     // 忽略biz
-                    if (VirtualFileSofaArkBiz.isBiz(vf))
+                    if (VirtualFileSofaArkBiz.isBiz(vf)) {
                         continue;
+                    }
                     // 忽略plugin
-                    if (VirtualFileSofaArkPlugin.isPlugin(vf))
+                    if (VirtualFileSofaArkPlugin.isPlugin(vf)) {
                         continue;
+                    }
                     result.add(childNodeId);
                     stack.push(child);
                 }
@@ -525,23 +555,21 @@ public class SofaArkManager {
 
     private SofaArkBase<?> createModelFromLibraryEntry(Module module, SofaArkId artifact, LibraryOrderEntry libraryEntry, SofaArkManagerRefreshContext context) {
         VirtualFile file = getLibraryFile(libraryEntry);
-        if (file == null)
+        if (file == null) {
             return null;
-        if (context.pluginCache.containsKey(artifact) || context.bizCache.containsKey(artifact))
+        }
+        if (context.pluginCache.containsKey(artifact) || context.bizCache.containsKey(artifact)) {
             return null;
+        }
         if (VirtualFileSofaArkPlugin.isPlugin(file)) {
             VirtualFileSofaArkPlugin plugin = VirtualFileSofaArkPlugin.createFromIdAndFile(artifact, file);
             context.sortedPluginSet.add(plugin);
             context.pluginCache.put(artifact, plugin);
-            // TODO ...
-            // context.pluginCacheByName.put(file.getCanonicalPath(), plugin);
             return plugin;
         } else if (VirtualFileSofaArkBiz.isBiz(file)) {
             VirtualFileSofaArkBiz biz = VirtualFileSofaArkBiz.createFromIdAndFile(artifact, file);
             context.sortedBizSet.add(biz);
             context.bizCache.put(artifact, biz);
-            // TODO ...
-            // context.bizCacheByName.put(file.getCanonicalPath(), biz);
             return biz;
         }
         return null;
@@ -549,21 +577,24 @@ public class SofaArkManager {
 
     private SofaArkBase<?> createModelFromModule(Module module, SofaArkManagerRefreshContext context) {
         MavenProject maven = MavenProjectsManager.getInstance(project).findProject(module);
-        if (maven == null)
+        if (maven == null) {
             return null;
+        }
         if (MavenSofaArkPlugin.isPlugin(maven)) {
             MavenSofaArkPlugin plugin = new MavenSofaArkPlugin(module, maven);
             SofaArkId id = plugin.getMetadata().getId();
-            if (context.pluginCache.containsKey(id))
+            if (context.pluginCache.containsKey(id)) {
                 return null;
+            }
             context.sortedPluginSet.add(plugin);
             context.pluginCache.put(id, plugin);
             return plugin;
         } else if (MavenSofaArkBiz.isBiz(maven)) {
             MavenSofaArkBiz biz = new MavenSofaArkBiz(module, maven);
             SofaArkId id = biz.getMetadata().getId();
-            if (context.bizCache.containsKey(id))
+            if (context.bizCache.containsKey(id)) {
                 return null;
+            }
             context.sortedBizSet.add(biz);
             context.bizCache.put(id, biz);
             return biz;
@@ -585,8 +616,9 @@ public class SofaArkManager {
                         && !DependencyScope.PROVIDED.equals(libraryEntry.getScope())) {
                     continue;
                 }
-                if (!StringUtil.startsWith(name, MavenArtifact.MAVEN_LIB_PREFIX))
+                if (!StringUtil.startsWith(name, MavenArtifact.MAVEN_LIB_PREFIX)) {
                     continue;
+                }
                 name = StringUtil.trimStart(name, MavenArtifact.MAVEN_LIB_PREFIX);
                 SofaArkId artifact = SofaArkId.parseSofaArkId(name);
                 result.put(artifact, libraryEntry);
@@ -597,14 +629,19 @@ public class SofaArkManager {
 
     private VirtualFile getLibraryFile(@NotNull LibraryOrderEntry libraryEntry) {
         Library library = libraryEntry.getLibrary();
-        if (library == null)
+        if (library == null) {
             return null;
+        }
         VirtualFile[] files = library.getFiles(OrderRootType.CLASSES);
-        if (files.length <= 0)
+        if (files.length <= 0) {
             return null;
+        }
         for (VirtualFile file : files) {
-            if (file == null || !file.isValid() || !(file.getFileType() instanceof ArchiveFileType))
+            if (file == null
+                    || !file.isValid()
+                    || !(file.getFileType() instanceof ArchiveFileType)) {
                 continue;
+            }
             // TODO 支持多个文件的情况
             // return JarFileSystem.getInstance().getJarRootForLocalFile(file);
             return file;
@@ -639,8 +676,9 @@ public class SofaArkManager {
 
         SofaArkManagerRefreshContext(Project project, SofaArkManagerRefreshContext context) {
             this.project = project;
-            if (context == null)
+            if (context == null) {
                 return;
+            }
             this.sortedPluginSet.addAll(context.sortedPluginSet);
             this.pluginCache.putAll(context.pluginCache);
             this.sortedBizSet.addAll(context.sortedBizSet);

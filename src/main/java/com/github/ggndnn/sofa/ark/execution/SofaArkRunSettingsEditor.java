@@ -33,6 +33,11 @@ import java.awt.*;
 
 import static java.awt.GridBagConstraints.*;
 
+/**
+ * SofaArkRunSettingsEditor
+ *
+ * @author ggndnn
+ */
 public class SofaArkRunSettingsEditor extends SettingsEditor<SofaArkRunConfiguration> implements PanelWithAnchor {
     private final CommonJavaParametersPanel commonJavaParametersPanel;
 

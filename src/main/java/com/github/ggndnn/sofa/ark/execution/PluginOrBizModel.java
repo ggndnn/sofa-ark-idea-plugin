@@ -16,6 +16,8 @@ package com.github.ggndnn.sofa.ark.execution;
 public class PluginOrBizModel implements Cloneable {
     public final static String TYPE_WORKSPACE = "workspace";
 
+    public final static String TYPE_WORKSPACE_JAR = "workspace_jar";
+
     public final static String TYPE_JAR = "jar";
 
     public final static String CLASSIFIER_PLUGIN = "plugin";

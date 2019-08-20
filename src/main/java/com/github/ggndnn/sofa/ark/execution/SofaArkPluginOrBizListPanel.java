@@ -15,6 +15,7 @@ package com.github.ggndnn.sofa.ark.execution;
 
 import com.github.ggndnn.sofa.ark.components.SofaArkManager;
 import com.github.ggndnn.sofa.ark.execution.model.SofaArkId;
+import com.github.ggndnn.sofa.ark.model.MavenSofaArkBase;
 import com.github.ggndnn.sofa.ark.model.SofaArkBase;
 import com.github.ggndnn.sofa.ark.model.VirtualFileSofaArkBiz;
 import com.github.ggndnn.sofa.ark.model.VirtualFileSofaArkPlugin;
@@ -37,8 +38,10 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.util.PlatformIcons;
 import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ListTableModel;
+import com.intellij.util.ui.table.IconTableCellRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -57,6 +60,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * SofaArkPluginOrBizListPanel
+ *
+ * @author ggndnn
+ */
 public class SofaArkPluginOrBizListPanel extends SettingsEditor<SofaArkRunConfiguration> {
     private final TableView<PluginOrBizModel> pluginOrBizTable;
 
@@ -168,14 +176,36 @@ public class SofaArkPluginOrBizListPanel extends SettingsEditor<SofaArkRunConfig
     }
 
     static List<PluginOrBizModel> resolvePluginOrBizModels(@NotNull SofaArkRunConfiguration configuration) {
-        Project project = configuration.getProject();
-        PluginOrBizModel[] pluginOrBizModels = configuration.configBean.pluginOrBizModels;
-        SofaArkManager mgr = project.getComponent(SofaArkManager.class);
         List<PluginOrBizModel> resolvedPluginOrModels = new ArrayList<>();
         Map<SofaArkId, PluginOrBizModel> pluginOrBizInWorkspace = new LinkedHashMap<>();
+        resolvePluginOrBizModelsInWorkspace(configuration, resolvedPluginOrModels, pluginOrBizInWorkspace);
+        resolvePluginOrBizModelsInConfiguration(configuration, resolvedPluginOrModels, pluginOrBizInWorkspace);
+        resolvedPluginOrModels.sort((a, b) -> {
+            if (a.type != null && a.type.equals(b.type)) {
+                return 0;
+            }
+            if (PluginOrBizModel.TYPE_WORKSPACE.equals(a.type)) {
+                return -1;
+            }
+            if (PluginOrBizModel.TYPE_WORKSPACE_JAR.equals(a.type)
+                    && !PluginOrBizModel.TYPE_WORKSPACE.equals(b.type)) {
+                return -1;
+            }
+            return 1;
+        });
+        return resolvedPluginOrModels;
+    }
+
+    private static void resolvePluginOrBizModelsInWorkspace(@NotNull SofaArkRunConfiguration configuration, List<PluginOrBizModel> resolvedPluginOrModels, Map<SofaArkId, PluginOrBizModel> pluginOrBizInWorkspace) {
+        Project project = configuration.getProject();
+        SofaArkManager mgr = project.getComponent(SofaArkManager.class);
         mgr.getAllBiz().forEach(biz -> {
             PluginOrBizModel m = convertPluginOrBiz((SofaArkBase<?>) biz);
-            m.type = PluginOrBizModel.TYPE_WORKSPACE;
+            if (biz instanceof MavenSofaArkBase) {
+                m.type = PluginOrBizModel.TYPE_WORKSPACE;
+            } else {
+                m.type = PluginOrBizModel.TYPE_WORKSPACE_JAR;
+            }
             m.classifier = PluginOrBizModel.CLASSIFIER_BIZ;
             m.enabled = true;
             m.status = PluginOrBizModel.STATUS_ADDED;
@@ -190,7 +220,11 @@ public class SofaArkPluginOrBizListPanel extends SettingsEditor<SofaArkRunConfig
         });
         mgr.getAllPlugins().forEach(plugin -> {
             PluginOrBizModel m = convertPluginOrBiz((SofaArkBase<?>) plugin);
-            m.type = PluginOrBizModel.TYPE_WORKSPACE;
+            if (plugin instanceof MavenSofaArkBase) {
+                m.type = PluginOrBizModel.TYPE_WORKSPACE;
+            } else {
+                m.type = PluginOrBizModel.TYPE_WORKSPACE_JAR;
+            }
             m.classifier = PluginOrBizModel.CLASSIFIER_PLUGIN;
             m.enabled = true;
             m.status = PluginOrBizModel.STATUS_ADDED;
@@ -203,6 +237,11 @@ public class SofaArkPluginOrBizListPanel extends SettingsEditor<SofaArkRunConfig
 
             resolvedPluginOrModels.add(m);
         });
+    }
+
+    private static void resolvePluginOrBizModelsInConfiguration(@NotNull SofaArkRunConfiguration configuration, List<PluginOrBizModel> resolvedPluginOrModels, Map<SofaArkId, PluginOrBizModel> pluginOrBizInWorkspace) {
+        Project project = configuration.getProject();
+        PluginOrBizModel[] pluginOrBizModels = configuration.configBean.pluginOrBizModels;
         if (pluginOrBizModels != null) {
             List<PluginOrBizModel> unresolvedPluginOrBizModels = Stream.of(pluginOrBizModels)
                     .filter(m -> {
@@ -225,7 +264,7 @@ public class SofaArkPluginOrBizListPanel extends SettingsEditor<SofaArkRunConfig
                     .stream()
                     .filter(m -> {
                         MavenId mavenId = new MavenId(m.groupId, m.artifactId, m.version);
-                        if (MavenArtifactUtil.hasArtifactFile(localRepo, mavenId, "jar")) {
+                        if (MavenArtifactUtil.hasArtifactFile(localRepo, mavenId, PluginOrBizModel.TYPE_JAR)) {
                             File f = MavenArtifactUtil.getArtifactFile(localRepo, m.groupId, m.artifactId, m.version, "jar");
                             VirtualFile vf = VfsUtil.findFileByIoFile(f, false);
                             if (vf != null) {
@@ -249,7 +288,6 @@ public class SofaArkPluginOrBizListPanel extends SettingsEditor<SofaArkRunConfig
                 resolvedPluginOrModels.add(m);
             });
         }
-        return resolvedPluginOrModels;
     }
 
     private static PluginOrBizModel convertPluginOrBiz(SofaArkBase<?> pluginOrBiz) {
@@ -272,10 +310,21 @@ public class SofaArkPluginOrBizListPanel extends SettingsEditor<SofaArkRunConfig
             if (pluginOrBiz.classifier != null) {
                 value += " (" + pluginOrBiz.classifier + ")";
             }
-            if(PluginOrBizModel.STATUS_MISSING.equals(pluginOrBiz.status)) {
+            if (PluginOrBizModel.STATUS_MISSING.equals(pluginOrBiz.status)) {
                 value += " (missing)";
             }
             return value;
+        }
+
+        @Nullable
+        @Override
+        public TableCellRenderer getRenderer(PluginOrBizModel pluginOrBiz) {
+            if (PluginOrBizModel.TYPE_WORKSPACE.equals(pluginOrBiz.type)) {
+                return IconTableCellRenderer.create(PlatformIcons.MODULES_SOURCE_FOLDERS_ICON);
+            } else if (PluginOrBizModel.TYPE_WORKSPACE_JAR.equals(pluginOrBiz.type)) {
+                return IconTableCellRenderer.create(PlatformIcons.SOURCE_FOLDERS_ICON);
+            }
+            return IconTableCellRenderer.create(PlatformIcons.JAR_ICON);
         }
     }
 
