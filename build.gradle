@@ -21,6 +21,10 @@ repositories {
 group 'com.github.ggndnn'
 version '0.1.0-SNAPSHOT'
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
 intellij {
     localPath '/Applications/IntelliJ IDEA CE.app'
 
