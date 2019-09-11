@@ -15,7 +15,7 @@
 
 ## 运行环境
 - MacOS High Sierra 10.13.6 (目前仅在此环境下测试过)
-- JDK 8+
+- JDK 1.8_111+
 - Intellij 2019.2+
 - Sofa Ark 0.6.0+
 

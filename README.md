@@ -15,7 +15,7 @@ This pluign will search your expected modules and their dependencies, then add t
 
 ## Run Environment
 - MacOS High Sierra 10.13.6 (Only tested on this system so far)
-- JDK 8+
+- JDK 1.8_111+
 - Intellij 2019.2+
 - Sofa Ark 0.6.0+
 
