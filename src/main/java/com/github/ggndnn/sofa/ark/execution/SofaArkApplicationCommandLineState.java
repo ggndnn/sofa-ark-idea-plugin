@@ -67,7 +67,8 @@ class SofaArkApplicationCommandLineState extends BaseJavaApplicationCommandLineS
                         id.setArtifactId(m.artifactId);
                         id.setVersion(m.version);
                         SofaArkSerializable pluginOrBizWriter = null;
-                        if (PluginOrBizModel.TYPE_WORKSPACE.equals(m.type)) {
+                        if (PluginOrBizModel.TYPE_WORKSPACE.equals(m.type)
+                                || PluginOrBizModel.TYPE_WORKSPACE_JAR.equals(m.type)) {
                             SofaArkBase<?> pluginOrBiz = (SofaArkBase<?>) sofaArkManager.getBizById(id);
                             if (pluginOrBiz == null) {
                                 pluginOrBiz = (SofaArkBase<?>) sofaArkManager.getPluginById(id);

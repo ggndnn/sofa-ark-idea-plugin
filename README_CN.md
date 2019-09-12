@@ -15,7 +15,8 @@
 
 ## 运行环境
 - MacOS High Sierra 10.13.6 (目前仅在此环境下测试过)
-- JDK 1.8_111+
+- Windows 7
+- Java 8+
 - Intellij 2019.2+
 - Sofa Ark 0.6.0+
 
@@ -24,6 +25,7 @@
 
 ## 开发环境搭建
 * 请参考[官方插件开发指南](http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started.html)了解Idea插件开发
+* 请使用JDK1.8_111以上版本
 * 本工程使用Gradle方式开发插件，基于本地安装的Idea实例 (2019.2以上版本)
 ```
 intellij {

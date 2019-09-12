@@ -14,8 +14,9 @@ This pluign will search your expected modules and their dependencies, then add t
 ![Search Result](doc/run_configuration_with_added_plugin_or_biz.png)
 
 ## Run Environment
-- MacOS High Sierra 10.13.6 (Only tested on this system so far)
-- JDK 1.8_111+
+- MacOS High Sierra 10.13.6
+- Windows 7
+- Java 8+
 - Intellij 2019.2+
 - Sofa Ark 0.6.0+
 
@@ -24,6 +25,7 @@ This pluign will search your expected modules and their dependencies, then add t
 
 ## Developing
 * Please refer to [Intellij SDK Doc](http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started.html).
+* Please use JDK 1.8_111+
 * This project is created using gradle，based on local installed idea (2019.2+).
 ```
 intellij {

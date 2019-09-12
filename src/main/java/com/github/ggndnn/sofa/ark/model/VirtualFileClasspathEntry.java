@@ -40,7 +40,11 @@ public class VirtualFileClasspathEntry implements SofaArkClasspathEntry {
         model.setId(id);
         model.setType(SofaArkConstants.CLASS_PATH_ENTRY_TYPE_FILE);
         VirtualFile localVf = VfsUtil.getLocalFile(vf);
-        model.setPath(localVf.getCanonicalPath());
+        String path = localVf.getFileSystem().getProtocol() + ":" + localVf.getPath();
+        if (localVf.isDirectory() && !path.endsWith("/")) {
+            path += "/";
+        }
+        model.setPath(path);
         return model;
     }
 

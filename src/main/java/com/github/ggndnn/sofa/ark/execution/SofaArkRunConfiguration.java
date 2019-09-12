@@ -38,10 +38,14 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -142,15 +146,29 @@ public class SofaArkRunConfiguration extends JarApplicationConfiguration {
     List<String> getSofaArkLauncherClasspath() {
         Set<String> urls = new LinkedHashSet<>();
         PluginClassLoader cl = (PluginClassLoader) SofaArkRunConfiguration.class.getClassLoader();
-        cl.getUrls().stream().filter(u -> {
-            String file = PathUtil.getFileName(u.getFile());
-            for (String mark : SOFA_AKR_CONTAINER_JAR_MARKS) {
-                if (file.startsWith(mark)) {
-                    return true;
-                }
-            }
-            return false;
-        }).map(URL::toString).forEach(urls::add);
+        cl.getUrls().stream()
+                .filter(u -> {
+                    String file = PathUtil.getFileName(u.getFile());
+                    for (String mark : SOFA_AKR_CONTAINER_JAR_MARKS) {
+                        if (file.startsWith(mark)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .map(SofaArkRunConfiguration::urlToClasspathEntry)
+                .filter(Objects::nonNull)
+                .forEach(urls::add);
         return new ArrayList<>(urls);
+    }
+
+    private static String urlToClasspathEntry(URL url) {
+        try {
+            URI uri = url.toURI();
+            return new File(uri).getAbsolutePath();
+        } catch (URISyntaxException e) {
+            // TODO log
+        }
+        return null;
     }
 }
