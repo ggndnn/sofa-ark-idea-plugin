@@ -31,6 +31,9 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
 import com.intellij.util.xmlb.XmlSerializer;
@@ -43,10 +46,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,14 +58,17 @@ import static com.alipay.sofa.ark.spi.argument.CommandArgument.ARK_CONTAINER_ARG
 import static com.alipay.sofa.ark.spi.argument.CommandArgument.CLASSPATH_ARGUMENT_KEY;
 
 public class SofaArkRunConfiguration extends JarApplicationConfiguration {
-    private final static String[] SOFA_AKR_CONTAINER_JAR_MARKS = {"aopalliance-1.0", "commons-io-2.5",
+    private final static String[] SOFA_AKR_CONTAINER_BASE_JAR_MARKS = {"aopalliance-1.0", "commons-io-2.5",
             "guava-16.0.1", "guice-4.0", "guice-multibindings-4.0", "javax.inject-1",
-            "logback-core-1.1.11", "logback-classic-1.1.11", "slf4j-api-1.7",
-            "log-sofa-boot-starter", "sofa-common-tools",
-            "sofa-ark-container", "sofa-ark-archive",
-            "sofa-ark-spi", "sofa-ark-common",
-            "sofa-ark-exception", "sofa-ark-api",
-            "sofa-ark-idea-plugin"};
+            "logback-core-1.1.11", "logback-classic-1.1.11", "slf4j-api-1.7"};
+
+    private final static String[] SOFA_AKR_CONTAINER_JAR_MARKS = {"log-sofa-boot-starter", "sofa-common-tools",
+            "sofa-ark-container", "sofa-ark-archive", "sofa-ark-spi",
+            "sofa-ark-common", "sofa-ark-exception", "sofa-ark-api"};
+
+    private final static String[] PLUGIN_SOFA_AKR_CONTAINER_JAR_MARKS = {"sofa-ark-idea-plugin"};
+
+    private final static Pattern FILE_NAME_PATTERN = Pattern.compile("([a-zA-Z0-9\\-]+)-[0-9.]+\\.jar");
 
     private final static String ELEMENT_RUN_CONFIG = "sofaArkRunConfig";
 
@@ -144,25 +151,61 @@ public class SofaArkRunConfiguration extends JarApplicationConfiguration {
 
     @NotNull
     List<String> getSofaArkLauncherClasspath() {
-        Set<String> urls = new LinkedHashSet<>();
+        Map<String, String> urls = new LinkedHashMap<>();
+        ProjectRootManager.getInstance(getProject()).orderEntries().forEachLibrary(l -> {
+            VirtualFile[] vfs = l.getFiles(OrderRootType.CLASSES);
+            if (vfs.length <= 0) {
+                return true;
+            }
+            VirtualFile vf = vfs[0];
+            vf = VfsUtil.getLocalFile(vf);
+            File f = VfsUtil.virtualToIoFile(vf);
+            String fileName = f.getName();
+            for (String mark : SOFA_AKR_CONTAINER_BASE_JAR_MARKS) {
+                if (fileName.startsWith(mark)) {
+                    urls.put(mark, f.getAbsolutePath());
+                    return true;
+                }
+            }
+            Matcher matcher = FILE_NAME_PATTERN.matcher(fileName);
+            if (!matcher.matches()) {
+                return true;
+            }
+            String prefix = matcher.group(1);
+            for (String mark : SOFA_AKR_CONTAINER_JAR_MARKS) {
+                if (mark.startsWith(prefix)) {
+                    urls.put(mark, f.getAbsolutePath());
+                }
+            }
+            return true;
+        });
+        // TODO check whether sofa ark container jars are all present
+        // TODO deal with then compatibility issue between PLUGIN_SOFA_AKR_CONTAINER_JARs and SOFA_AKR_CONTAINER_JARs
         PluginClassLoader cl = (PluginClassLoader) SofaArkRunConfiguration.class.getClassLoader();
-        cl.getUrls().stream()
-                .filter(u -> {
-                    String file = PathUtil.getFileName(u.getFile());
-                    for (String mark : SOFA_AKR_CONTAINER_JAR_MARKS) {
-                        if (file.startsWith(mark)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })
-                .map(SofaArkRunConfiguration::urlToClasspathEntry)
-                .filter(Objects::nonNull)
-                .forEach(urls::add);
-        return new ArrayList<>(urls);
+        cl.getUrls().forEach(u -> {
+            String file = PathUtil.getFileName(u.getFile());
+            for (String mark : SOFA_AKR_CONTAINER_BASE_JAR_MARKS) {
+                if (urls.containsKey(mark)) {
+                    continue;
+                }
+                if (file.startsWith(mark)) {
+                    urls.put(mark, urlToClasspathEntry(u));
+                    return;
+                }
+            }
+            for (String mark : PLUGIN_SOFA_AKR_CONTAINER_JAR_MARKS) {
+                if (urls.containsKey(mark)) {
+                    continue;
+                }
+                if (file.startsWith(mark)) {
+                    urls.put(mark, urlToClasspathEntry(u));
+                }
+            }
+        });
+        return new ArrayList<>(urls.values());
     }
 
-    private static String urlToClasspathEntry(URL url) {
+    private String urlToClasspathEntry(URL url) {
         try {
             URI uri = url.toURI();
             return new File(uri).getAbsolutePath();

@@ -13,6 +13,7 @@
  */
 package com.github.ggndnn.sofa.ark.execution;
 
+import com.alipay.sofa.ark.spi.constant.Constants;
 import com.github.ggndnn.sofa.ark.components.SofaArkManager;
 import com.github.ggndnn.sofa.ark.execution.model.SofaArkId;
 import com.github.ggndnn.sofa.ark.execution.model.SofaArkLauncher;
@@ -107,6 +108,7 @@ class SofaArkApplicationCommandLineState extends BaseJavaApplicationCommandLineS
         }
         params.setMainClass(SofaArkLauncher.class.getName());
         params.getProgramParametersList().add(configuration.getSofaArkContainerParameters());
+        params.getVMParametersList().addProperty(Constants.TELNET_SERVER_ENABLE, "false");
         setupJavaParameters(params);
         return params;
     }

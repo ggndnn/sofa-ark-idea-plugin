@@ -12,13 +12,14 @@
 ![查找Maven模块](doc/run_configuration_searching_plugin_or_biz.png)
 插件会自动查找所添加模块的依赖，将其中包含的Plugin或者Biz添加到运行配置中
 ![查找结果](doc/run_configuration_with_added_plugin_or_biz.png)
+- 支持版本0.6.0以上的Sofa Ark容器
+- 支持版本1.0.0以上的Sofa Ark容器
 
 ## 运行环境
-- MacOS High Sierra 10.13.6 (目前仅在此环境下测试过)
+- MacOS High Sierra 10.13.6
 - Windows 7
 - Java 8+
 - Intellij 2019.2+
-- Sofa Ark 0.6.0+
 
 ## 示例
 * [Sofa Ark Samples](https://github.com/ggndnn/sofa-ark-samples) - 用于验证此插件的示例
@@ -34,3 +35,4 @@ intellij {
     plugins 'maven', 'java'
 }
 ```
+* 请根据具体开发环境修改localPath配置
