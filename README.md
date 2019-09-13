@@ -22,7 +22,8 @@ This pluign will search your expected modules and their dependencies, then add t
 - Intellij 2019.2+
 
 ## Samples
-* [Sofa Ark Samples](https://github.com/ggndnn/sofa-ark-samples) - Sofa Ark Samples for this Plugin
+* [Sofa Ark Samples (0.6.0) for this Plugin](https://github.com/ggndnn/sofa-ark-samples/tree/ark_0_6_0)
+* [Sofa Ark Samples (1.0.0) for this Plugin](https://github.com/ggndnn/sofa-ark-samples)
 
 ## Developing
 * Please refer to [Intellij SDK Doc](http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started.html).

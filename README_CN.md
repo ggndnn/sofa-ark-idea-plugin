@@ -22,7 +22,8 @@
 - Intellij 2019.2+
 
 ## 示例
-* [Sofa Ark Samples](https://github.com/ggndnn/sofa-ark-samples) - 用于验证此插件的示例
+* [用于验证此插件的示例(Sofa Ark 0.6.0)](https://github.com/ggndnn/sofa-ark-samples/tree/ark_0_6_0)
+* [用于验证此插件的示例(Sofa Ark 1.0.0)](https://github.com/ggndnn/sofa-ark-samples)
 
 ## 开发环境搭建
 * 请参考[官方插件开发指南](http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started.html)了解Idea插件开发
