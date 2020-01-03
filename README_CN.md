@@ -12,8 +12,7 @@
 ![查找Maven模块](doc/run_configuration_searching_plugin_or_biz.png)
 插件会自动查找所添加模块的依赖，将其中包含的Plugin或者Biz添加到运行配置中
 ![查找结果](doc/run_configuration_with_added_plugin_or_biz.png)
-- 支持版本0.6.0以上的Sofa Ark容器
-- 支持版本1.0.0以上的Sofa Ark容器
+- 支持版本1.1.0以上的Sofa Ark容器
 
 ## 运行环境
 - MacOS High Sierra 10.13.6

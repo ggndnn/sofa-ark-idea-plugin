@@ -19,7 +19,8 @@ repositories {
 }
 
 group 'com.github.ggndnn'
-version '0.1.1'
+
+version '0.1.2-SNAPSHOT'
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
@@ -38,12 +39,12 @@ patchPluginXml {
 }
 
 dependencies {
-    implementation('com.alipay.sofa:sofa-ark-common:1.0.0') {
+    implementation('com.alipay.sofa:sofa-ark-common:1.1.0') {
         exclude group: 'com.alipay.sofa', module: 'sofa-ark-spi'
         exclude group: 'com.google.inject', module: 'guice'
         exclude group: 'com.alipay.sofa.common', module: 'log-sofa-boot-starter'
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
-    implementation 'com.alipay.sofa:sofa-ark-tools:1.0.0'
-    implementation 'com.alipay.sofa:sofa-ark-container:1.0.0'
+    implementation 'com.alipay.sofa:sofa-ark-tools:1.1.0'
+    implementation 'com.alipay.sofa:sofa-ark-container:1.1.0'
 }
