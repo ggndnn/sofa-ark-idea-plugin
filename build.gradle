@@ -20,7 +20,7 @@ repositories {
 
 group 'com.github.ggndnn'
 
-version '0.1.2-SNAPSHOT'
+version '0.1.2'
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
